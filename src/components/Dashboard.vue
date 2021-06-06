@@ -8,6 +8,7 @@
 import { Dashboard } from "./Dashboard.model";
 import { resize } from "vue-element-resize-detector";
 
+import { defineComponent } from "vue";
 //Monitor the Props and update the item with the changed value
 const watchProp = (key, deep) => ({
   handler(newValue) {
@@ -19,7 +20,7 @@ const watchProp = (key, deep) => ({
   },
   deep,
 });
-export default {
+export default defineComponent({
   name: "Dashboard",
   inheritAttrs: false,
   props: {
@@ -61,7 +62,7 @@ export default {
     createPropWatchers() {
       //Setup prop watches to sync with the Dash Item
       Object.keys(this.$props).forEach((key) => {
-        this.$watch(key, watchProp(key, true));
+        this.$watch(key, () => watchProp(key, true));
       });
     },
   },
@@ -69,7 +70,7 @@ export default {
     this.d = new Dashboard(this.$props);
     this.createPropWatchers();
   },
-};
+});
 </script>
 
 <style></style>

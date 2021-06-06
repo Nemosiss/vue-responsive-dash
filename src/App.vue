@@ -20,11 +20,11 @@
       >
         <Dash-Item
           v-for="item in layout.items"
-          :id.sync="item.id"
-          :x.sync="item.x"
-          :y.sync="item.y"
-          :width.sync="item.width"
-          :height.sync="item.height"
+          v-model:id="item.id"
+          v-model:x="item.x"
+          v-model:y="item.y"
+          v-model:width="item.width"
+          v-model:height="item.height"
           :locked="item.locked"
           :key="item.id"
           :resizable="resizable"
@@ -78,12 +78,14 @@
   </div>
 </template>
 
-<script>
-import Vue from "vue";
+<script lang="ts">
+import { defineComponent } from "vue";
 import DashItem from "./components/DashItem.vue";
 import DashLayout from "./components/DashLayout.vue";
 import Dashboard from "./components/Dashboard.vue";
-export default {
+import { Layout } from "./components/Layout.model";
+import { Item } from "./interfaces";
+export default defineComponent({
   name: "app",
   components: {
     DashItem,
@@ -95,8 +97,8 @@ export default {
       compact: true,
       draggable: true,
       resizable: true,
-      allowFrom: null,
-      ignoreFrom: null,
+      allowFrom: null as string | null,
+      ignoreFrom: null as string | null,
       moveHold: 0,
       margin: { x: 20, y: 20 },
       layouts: [
@@ -208,7 +210,7 @@ export default {
             { id: "2", x: 0, y: 1, width: 1, height: 1 },
           ],
         },
-      ],
+      ] as Layout[],
       dlayouts: [
         {
           breakpoint: "xl",
@@ -219,7 +221,7 @@ export default {
             { id: "3", x: 0, y: 0, width: 8, height: 3 },
           ],
         },
-      ],
+      ] as Layout[],
       currentBreakpoint: "",
       origLayout: [],
       testHelper: false,
@@ -236,37 +238,37 @@ export default {
     };
   },
   computed: {
-    rowHeight() {
+    rowHeight(): number | boolean {
       if (this.enableStaticRowHeight) {
         return this.rowHeightInput;
       }
       return this.enableStaticRowHeight;
     },
-    colWidth() {
+    colWidth(): number | boolean {
       if (this.enableStaticColWidth) {
         return this.colWidthInput;
       }
       return this.enableStaticColWidth;
     },
-    maxColWidth() {
+    maxColWidth(): number | boolean {
       if (this.enableColWidthLimits) {
         return this.maxColWidthInput;
       }
       return this.enableColWidthLimits;
     },
-    minColWidth() {
+    minColWidth(): number | boolean {
       if (this.enableColWidthLimits) {
         return this.minColWidthInput;
       }
       return this.enableColWidthLimits;
     },
-    maxRowHeight() {
+    maxRowHeight(): number | boolean {
       if (this.enableRowHeightLimits) {
         return this.maxRowHeightInput;
       }
       return this.enableRowHeightLimits;
     },
-    minRowHeight() {
+    minRowHeight(): number | boolean {
       if (this.enableRowHeightLimits) {
         return this.minRowHeightInput;
       }
@@ -296,7 +298,7 @@ export default {
           y: 0,
           width: 2,
           height: 1,
-        });
+        } as Item);
       }
     },
     removeItem() {
@@ -304,11 +306,12 @@ export default {
         layout.items.splice(0, 1);
       }
     },
-    updateCurrentBreakpoint(val) {
+    updateCurrentBreakpoint(val: string) {
+      console.log(val)
       this.currentBreakpoint = val;
     },
   },
-};
+});
 </script>
 
 <style>

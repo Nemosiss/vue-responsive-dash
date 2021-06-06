@@ -10,9 +10,9 @@
         :draggable="false"
         :resizable="false"
         v-show="dragging || resizing"
-        :y.sync="placeholderY"
-        :height.sync="placeholderHeight"
-        :maxWidth.sync="placeholderMaxWidth"
+        v-model:y="placeholderY"
+        v-model:height="placeholderHeight"
+        v-model:maxWidth="placeholderMaxWidth"
       >
         <slot name="placeholder">
           <div class="placeholder"></div>
@@ -34,6 +34,7 @@
 import { Layout } from "./Layout.model";
 import DashItem from "./DashItem";
 
+import { defineComponent } from "vue";
 //Monitor the Props and update the item with the changed value
 const watchProp = (key, deep) => ({
   handler(newValue) {
@@ -46,7 +47,7 @@ const watchProp = (key, deep) => ({
   deep,
 });
 
-export default {
+export default defineComponent({
   name: "DashLayout",
   inheritAttrs: false,
   props: {
@@ -152,7 +153,7 @@ export default {
     createPropWatchers() {
       //Setup prop watches to sync with the Dash Item
       Object.keys(this.$props).forEach((key) => {
-        this.$watch(key, watchProp(key, true));
+        this.$watch(key, () => watchProp(key, true));
       });
     },
   },
@@ -180,12 +181,12 @@ export default {
       );
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (this.dashboard) {
       this.dashboard.removeLayoutInstance(this.l);
     }
   },
-};
+});
 </script>
 
 <style scoped>

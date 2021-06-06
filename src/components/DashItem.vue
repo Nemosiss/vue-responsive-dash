@@ -164,6 +164,8 @@ import interact from "@interactjs/interact";
 import { DashItem } from "./DashItem.model";
 import { Layout as layoutModel } from "./Layout.model";
 
+import { defineComponent } from "vue";
+
 //Monitor the Props and update the item with the changed value
 const watchProp = (key, deep) => ({
   handler(newValue) {
@@ -190,7 +192,7 @@ const watchEmitProp = (key, deep) => ({
   deep,
 });
 
-export default {
+export default defineComponent({
   name: "DashItem",
   inheritAttrs: false,
   props: {
@@ -417,13 +419,13 @@ export default {
     createPropWatchers() {
       //Setup prop watches to sync with the Dash Item
       Object.keys(this.$props).forEach((key) => {
-        this.$watch(key, watchProp(key, true));
+        this.$watch(key, () => watchProp(key, true));
       });
     },
     createDashItemWatchers() {
       //Setup Watchers for emmit sync option
       EMIT_PROPS.forEach((prop) => {
-        this.$watch("item." + prop, watchEmitProp(prop, true));
+        this.$watch("item." + prop, () => watchEmitProp(prop, true));
       });
     },
   },
@@ -486,7 +488,7 @@ export default {
       );
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (this.interactInstance) {
       this.interactInstance.unset();
     }
@@ -494,7 +496,7 @@ export default {
       this.layout.removeDashItem(this.item);
     }
   },
-};
+});
 </script>
 
 <style scoped>
