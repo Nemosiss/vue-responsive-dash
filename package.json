@@ -19,8 +19,8 @@
     "types/*.d.ts"
   ],
   "types": "types/index.d.ts",
-  "main": "dist/lib-responsive-dash.common.js",
-  "unpkg": "dist/lib-responsive-dash.umd.min.js",
+  "main": "dist/vue-responsive-dash.common.js",
+  "unpkg": "dist/vue-responsive-dash.umd.min.js",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "rimraf dist && vue-cli-service build",
