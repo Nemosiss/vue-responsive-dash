@@ -156,64 +156,40 @@
   </div>
 </template>
 
-<script>
-import "@interactjs/actions";
-import "@interactjs/auto-start";
-import interact from "@interactjs/interact";
+<script lang="ts">
+import { defineComponent, inject, provide } from 'vue';
+import '@interactjs/actions';
+import '@interactjs/auto-start';
+import interact from '@interactjs/interact';
 
-import { DashItem } from "./DashItem.model";
-import { Layout as layoutModel } from "./Layout.model";
-
-import { defineComponent } from "vue";
-
-//Monitor the Props and update the item with the changed value
-const watchProp = (key, deep) => ({
-  handler(newValue) {
-    //If the prop did not cause the update there is no updating
-    if (this.item[key] === newValue) {
-      return;
-    }
-    this.item[key] = newValue;
-  },
-  deep,
-});
+import { Layout, DashboardItem } from '@/models';
+import { Interactable, Target } from '@interactjs/types';
 
 //Props to change via interaction and need to be emitted for prop.sync usage
-const EMIT_PROPS = ["x", "y", "width", "height"];
-//Monitor the item and emit an update to allow .sync usage
-const watchEmitProp = (key, deep) => ({
-  handler(newValue) {
-    //If the prop caused the update there is no point emitting it back
-    if (this.$props[key] === newValue) {
-      return;
-    }
-    this.$emit("update:" + key, newValue);
-  },
-  deep,
-});
+const EMIT_PROPS = ['x', 'y', 'width', 'height'];
 
 export default defineComponent({
-  name: "DashItem",
+  name: 'DashItem',
   inheritAttrs: false,
   props: {
     id: { type: [Number, String], required: true },
-    x: { type: Number, default: DashItem.defaults.x },
-    y: { type: Number, default: DashItem.defaults.y },
-    width: { type: Number, default: DashItem.defaults.width },
-    maxWidth: { type: [Number, Boolean], default: DashItem.defaults.maxWidth },
-    minWidth: { type: [Number, Boolean], default: DashItem.defaults.minWidth },
-    height: { type: Number, default: DashItem.defaults.height },
+    x: { type: Number, default: DashboardItem.defaults.x },
+    y: { type: Number, default: DashboardItem.defaults.y },
+    width: { type: Number, default: DashboardItem.defaults.width },
+    maxWidth: { type: [Number, Boolean], default: DashboardItem.defaults.maxWidth },
+    minWidth: { type: [Number, Boolean], default: DashboardItem.defaults.minWidth },
+    height: { type: Number, default: DashboardItem.defaults.height },
     maxHeight: {
       type: [Number, Boolean],
-      default: DashItem.defaults.maxHeight,
+      default: DashboardItem.defaults.maxHeight,
     },
     minHeight: {
       type: [Number, Boolean],
-      default: DashItem.defaults.minHeight,
+      default: DashboardItem.defaults.minHeight,
     },
-    draggable: { type: Boolean, default: DashItem.defaults.draggable },
-    resizable: { type: Boolean, default: DashItem.defaults.resizable },
-    resizeEdges: { type: String, default: "bottom right" },
+    draggable: { type: Boolean, default: DashboardItem.defaults.draggable },
+    resizable: { type: Boolean, default: DashboardItem.defaults.resizable },
+    resizeEdges: { type: String, default: 'bottom right' },
     resizeHandleSize: { type: Number, default: 8 },
     draggableZIndex: { type: Number, default: 1 }, //TODO remove
     resizableZIndex: { type: Number, default: 1 }, //TODO consider removing
@@ -221,21 +197,17 @@ export default defineComponent({
     resizeHold: { type: Number, default: 0 },
     dragAllowFrom: { type: String, default: null },
     dragIgnoreFrom: { type: String, default: null },
-    locked: { type: Boolean, default: DashItem.defaults.locked },
-  },
-  inject: { $layout: { default: null } },
-  provide() {
-    return {
-      $item: () => this.item,
-    };
+    locked: { type: Boolean, default: DashboardItem.defaults.locked },
   },
   data() {
     return {
-      interactInstance: null,
-      item: null,
+      layout: null as unknown as Layout,
+      interactInstance: null as unknown as Interactable,
+      item: null as unknown as DashboardItem,
       dragging: false,
       resizing: false,
-      unWatch: null,
+      // eslint-disable-next-line @typescript-eslint/ban-types
+      unWatch: null as unknown as Function,
       hover: false,
     };
   },
@@ -249,17 +221,11 @@ export default defineComponent({
         cssTransforms: this.useCssTransforms,
       };
     },
-    layout() {
-      if (this.$layout) {
-        return this.$layout();
-      }
-      return null;
-    },
     useCssTransforms() {
       if (this.layout) {
         return this.layout.useCssTransforms;
       }
-      return layoutModel.default.useCssTransforms;
+      return Layout.defaults.useCssTransforms;
     },
     left() {
       if (this.item) {
@@ -287,38 +253,22 @@ export default defineComponent({
     },
     cssStyle() {
       if (this.useCssTransforms) {
-        return DashItem.cssTransform(
-          this.top,
-          this.left,
-          this.widthPx,
-          this.heightPx
-        );
+        return DashboardItem.cssTransform(this.top, this.left, this.widthPx, this.heightPx);
       } else {
-        return DashItem.cssTopLeft(
-          this.top,
-          this.left,
-          this.widthPx,
-          this.heightPx
-        );
+        return DashboardItem.cssTopLeft(this.top, this.left, this.widthPx, this.heightPx);
       }
     },
     resizeTop() {
-      return !this.locked && this.resizable && this.resizeEdges.includes("top");
+      return !this.locked && this.resizable && this.resizeEdges.includes('top');
     },
     resizeBottom() {
-      return (
-        !this.locked && this.resizable && this.resizeEdges.includes("bottom")
-      );
+      return !this.locked && this.resizable && this.resizeEdges.includes('bottom');
     },
     resizeLeft() {
-      return (
-        !this.locked && this.resizable && this.resizeEdges.includes("left")
-      );
+      return !this.locked && this.resizable && this.resizeEdges.includes('left');
     },
     resizeRight() {
-      return (
-        !this.locked && this.resizable && this.resizeEdges.includes("right")
-      );
+      return !this.locked && this.resizable && this.resizeEdges.includes('right');
     },
     resizeTopLeft() {
       return !this.locked && this.resizeTop && this.resizeLeft;
@@ -336,25 +286,25 @@ export default defineComponent({
   methods: {
     setDraggable() {
       if (this.draggable && !this.locked) {
-        this.interactInstance.draggable({
+        this.interactInstance!.draggable({
           enabled: true,
           hold: this.moveHold,
           allowFrom: this.dragAllowFrom,
           ignoreFrom: this.dragIgnoreFrom,
           listeners: {
-            start: (event) => {
-              this.onMoveStart(event);
+            start: () => {
+              this.onMoveStart();
             },
-            move: (event) => {
+            move: (event: any) => {
               this.onMove(event);
             },
-            end: (event) => {
-              this.onMoveEnd(event);
+            end: () => {
+              this.onMoveEnd();
             },
           },
         });
       } else {
-        this.interactInstance.draggable(false);
+        this.interactInstance!.draggable(false);
       }
     },
     setResizable() {
@@ -363,20 +313,20 @@ export default defineComponent({
           enabled: true,
           hold: this.resizeHold,
           edges: {
-            top: ".resize-top",
-            left: ".resize-left",
-            bottom: ".resize-bottom",
-            right: ".resize-right",
+            top: '.resize-top',
+            left: '.resize-left',
+            bottom: '.resize-bottom',
+            right: '.resize-right',
           },
           listeners: {
-            start: (event) => {
-              this.onResizeStart(event);
+            start: () => {
+              this.onResizeStart();
             },
             move: (event) => {
               this.onResize(event);
             },
-            end: (event) => {
-              this.onResizeEnd(event);
+            end: () => {
+              this.onResizeEnd();
             },
           },
         });
@@ -384,48 +334,71 @@ export default defineComponent({
         this.interactInstance.resizable(false);
       }
     },
-    onMoveStart(e) {
+    onMoveStart() {
       this.dragging = true;
       this.item._onMoveStart();
-      this.$emit("moveStart", { ...this.item.toItem() });
+      this.$emit('moveStart', { ...this.item.toItem() });
     },
-    onMove(event) {
+    onMove(event: any) {
       if (this.dragging) {
         this.item._onMove(event.dx, event.dy);
-        this.$emit("moving", { ...this.item.toItem() });
+        this.$emit('moving', { ...this.item.toItem() });
       }
     },
-    onMoveEnd(e) {
+    onMoveEnd() {
       this.item._onMoveEnd();
       this.dragging = false;
-      this.$emit("moveEnd", { ...this.item.toItem() });
+      this.$emit('moveEnd', { ...this.item.toItem() });
     },
-    onResizeStart(e) {
+    onResizeStart() {
       this.resizing = true;
       this.item._onResizeStart();
-      this.$emit("resizeStart", { ...this.item.toItem() });
+      this.$emit('resizeStart', { ...this.item.toItem() });
     },
-    onResize(e) {
+    onResize(e: any) {
       if (this.resizing) {
         this.item._onResize(e);
-        this.$emit("resizing", { ...this.item.toItem() });
+        this.$emit('resizing', { ...this.item.toItem() });
       }
     },
-    onResizeEnd(e) {
+    onResizeEnd() {
       this.item._onResizeEnd();
       this.resizing = false;
-      this.$emit("resizeEnd", { ...this.item.toItem() });
+      this.$emit('resizeEnd', { ...this.item.toItem() });
     },
     createPropWatchers() {
       //Setup prop watches to sync with the Dash Item
       Object.keys(this.$props).forEach((key) => {
-        this.$watch(key, () => watchProp(key, true));
+        this.$watch(
+          key,
+          (newValue: any) => {
+            const field = key as keyof DashboardItem;
+
+            //If the prop did not cause the update there is no updating
+            if (this.item[field] === newValue) {
+              return;
+            }
+
+            this.item.setValueToField(field, newValue);
+          },
+          { deep: true }
+        );
       });
     },
     createDashItemWatchers() {
       //Setup Watchers for emmit sync option
       EMIT_PROPS.forEach((prop) => {
-        this.$watch("item." + prop, () => watchEmitProp(prop, true));
+        this.$watch(
+          'item.' + prop,
+          (newValue: any) => {
+            //If the prop caused the update there is no point emitting it back
+            if (this.$props[prop as any] === newValue) {
+              return;
+            }
+            this.$emit('update:' + prop, newValue);
+          },
+          { deep: true }
+        );
       });
     },
   },
@@ -433,9 +406,9 @@ export default defineComponent({
     hover(newValue) {
       this.item.hover = newValue;
       if (newValue) {
-        this.$emit("hoverStart", this.item);
+        this.$emit('hoverStart', this.item);
       } else {
-        this.$emit("hovenEnd", this.item);
+        this.$emit('hovenEnd', this.item);
       }
     },
     draggable() {
@@ -461,24 +434,28 @@ export default defineComponent({
       this.setDraggable();
     },
   },
+  created() {
+    this.layout = inject('$layout') as Layout;
+  },
   mounted() {
-    this.item = new DashItem(this.$props);
+    this.item = new DashboardItem(this.$props);
+    provide('$item', this.item);
 
-    this.interactInstance = interact(this.$refs.item);
+    this.interactInstance = interact(this.$refs.item as Target);
     this.setDraggable();
     this.setResizable();
 
     //Check if layout exists and if not then start a watcher
     if (this.layout) {
-      this.layout.addDashItem(this.item);
+      this.layout.addDashItem(this.item as DashboardItem);
       this.createPropWatchers();
       this.createDashItemWatchers();
     } else {
       this.unWatch = this.$watch(
-        "layout",
-        function (newValue) {
+        'layout',
+        (newValue: any) => {
           if (newValue) {
-            this.layout.addDashItem(this.item);
+            this.layout.addDashItem(this.item as DashboardItem);
             this.createPropWatchers();
             this.createDashItemWatchers();
             this.unWatch();
@@ -493,7 +470,7 @@ export default defineComponent({
       this.interactInstance.unset();
     }
     if (this.layout) {
-      this.layout.removeDashItem(this.item);
+      this.layout.removeDashItem(this.item as DashboardItem);
     }
   },
 });

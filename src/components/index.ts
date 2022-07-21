@@ -1,6 +1,6 @@
-import DashItem from "./DashItem.vue";
-import DashLayout from "./DashLayout.vue";
-import Dashboard from "./Dashboard.vue";
+import DashItem from './DashItem.vue';
+import DashLayout from './DashLayout.vue';
+import Dashboard from './Dashboard.vue';
 
 const VueResponsiveDash = {
   DashItem,
@@ -15,15 +15,15 @@ export function install(Vue: any) {
   // Object.keys(VueResponsiveDash).forEach((name) => {
   //   Vue.component(name, VueResponsiveDash[name]);
   // });
-  Vue.component("DashItem", VueResponsiveDash.DashItem);
-  Vue.component("DashLayout", VueResponsiveDash.DashLayout);
-  Vue.component("Dashboard", VueResponsiveDash.Dashboard);
+  Vue.component('DashItem', VueResponsiveDash.DashItem);
+  Vue.component('DashLayout', VueResponsiveDash.DashLayout);
+  Vue.component('Dashboard', VueResponsiveDash.Dashboard);
 }
 
 // Create module definition for Vue.use()
-const plugin = {
-  install,
-};
+// const plugin = {
+//   install,
+// };
 
 // // Auto-install when vue is found (eg. in browser via <script> tag)
 // let GlobalVue = null;

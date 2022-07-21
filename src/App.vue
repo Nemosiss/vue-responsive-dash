@@ -1,9 +1,6 @@
 <template>
   <div id="app">
-    <dashboard
-      :id="'dashTest'"
-      @currentBreakpointUpdated="updateCurrentBreakpoint"
-    >
+    <dashboard :id="'dashTest'" :autoHeight="enableStaticColWidth" @currentBreakpointUpdated="updateCurrentBreakpoint">
       <Dash-Layout
         v-for="layout in layouts"
         :key="layout.breakpoint"
@@ -14,6 +11,7 @@
         :minColWidth="minColWidth"
         :maxRowHeight="maxRowHeight"
         :minRowHeight="minRowHeight"
+        :useCssTransforms="false"
         :compact="compact"
         :margin="margin"
         :debug="true"
@@ -31,8 +29,8 @@
           :draggable="draggable"
           :maxWidth="3"
           :moveHold="moveHold"
-          :dragAllowFrom="allowFrom"
-          :dragIgnoreFrom="ignoreFrom"
+          :dragAllowFrom="allowFrom ?? undefined"
+          :dragIgnoreFrom="ignoreFrom ?? undefined"
         >
           <div class="content">
             {{ JSON.stringify(item, null, 2) }}
@@ -48,14 +46,9 @@
     Current Breakpoint:
     {{ currentBreakpoint }} <br />
     <button @click="compact = !compact">toggle compact ({{ compact }})</button>
-    <button @click="resizable = !resizable">
-      toggle resizable ({{ resizable }})
-    </button>
-    <button @click="draggable = !draggable">
-      toggle draggable ({{ draggable }})
-    </button>
-    <button @click="addItem">Add Item</button
-    ><button @click="removeItem">Remove Item</button>
+    <button @click="resizable = !resizable">toggle resizable ({{ resizable }})</button>
+    <button @click="draggable = !draggable">toggle draggable ({{ draggable }})</button>
+    <button @click="addItem">Add Item</button><button @click="removeItem">Remove Item</button>
     <button @click="enableStaticRowHeight = !enableStaticRowHeight">
       Toggle Static Row Height ({{ enableStaticRowHeight }})
     </button>
@@ -68,25 +61,21 @@
     <button @click="enableRowHeightLimits = !enableRowHeightLimits">
       Toggle Row Height Limits ({{ enableRowHeightLimits }})
     </button>
-    <button @click="toggleAllowFrom">
-      Toggle Allow From ({{ allowFrom }})
-    </button>
-    <button @click="toggleIgnoreFrom">
-      Toggle Ignore From ({{ ignoreFrom }})
-    </button>
+    <button @click="toggleAllowFrom">Toggle Allow From ({{ allowFrom }})</button>
+    <button @click="toggleIgnoreFrom">Toggle Ignore From ({{ ignoreFrom }})</button>
     <input type="number" min="0" max="5000" v-model.number="moveHold" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import DashItem from "./components/DashItem.vue";
-import DashLayout from "./components/DashLayout.vue";
-import Dashboard from "./components/Dashboard.vue";
-import { Layout } from "./components/Layout.model";
-import { Item } from "./interfaces";
+import { defineComponent } from 'vue';
+import DashItem from './components/DashItem.vue';
+import DashLayout from './components/DashLayout.vue';
+import Dashboard from './components/Dashboard.vue';
+import { Layout } from './models/Layout';
+import { Item } from './models';
 export default defineComponent({
-  name: "app",
+  name: 'app',
   components: {
     DashItem,
     DashLayout,
@@ -103,126 +92,126 @@ export default defineComponent({
       margin: { x: 20, y: 20 },
       layouts: [
         {
-          breakpoint: "xl",
+          breakpoint: 'xl',
           numberOfCols: 12,
           items: [
             {
-              id: "1",
+              id: '1',
               x: 0,
               y: 0,
               width: 1,
               height: 1,
             },
-            { id: "2", x: 1, y: 0, width: 2, height: 1 },
-            { id: "3", x: 0, y: 1, width: 2, height: 1 },
-            { id: "4", x: 3, y: 0, width: 2, height: 2 },
-            { id: "5", x: 5, y: 0, width: 1, height: 2 },
-            { id: "6", x: 6, y: 0, width: 2, height: 1 },
-            { id: "7", x: 7, y: 1, width: 5, height: 1 },
+            { id: '2', x: 1, y: 0, width: 2, height: 1 },
+            { id: '3', x: 0, y: 1, width: 2, height: 1 },
+            { id: '4', x: 3, y: 0, width: 2, height: 2 },
+            { id: '5', x: 5, y: 0, width: 1, height: 2 },
+            { id: '6', x: 6, y: 0, width: 2, height: 1 },
+            { id: '7', x: 7, y: 1, width: 5, height: 1 },
           ],
         },
         {
-          breakpoint: "lg",
+          breakpoint: 'lg',
           breakpointWidth: 1200,
           numberOfCols: 10,
           items: [
             {
-              id: "1",
+              id: '1',
               x: 0,
               y: 0,
               width: 1,
               height: 1,
             },
-            { id: "2", x: 1, y: 0, width: 2, height: 1 },
-            { id: "3", x: 0, y: 1, width: 2, height: 1, locked: true },
-            { id: "4", x: 3, y: 0, width: 2, height: 2 },
-            { id: "5", x: 5, y: 0, width: 1, height: 2 },
-            { id: "6", x: 6, y: 0, width: 2, height: 1 },
-            { id: "7", x: 7, y: 1, width: 3, height: 1 },
+            { id: '2', x: 1, y: 0, width: 2, height: 1 },
+            { id: '3', x: 0, y: 1, width: 2, height: 1, locked: true },
+            { id: '4', x: 3, y: 0, width: 2, height: 2 },
+            { id: '5', x: 5, y: 0, width: 1, height: 2 },
+            { id: '6', x: 6, y: 0, width: 2, height: 1 },
+            { id: '7', x: 7, y: 1, width: 3, height: 1 },
           ],
         },
         {
-          breakpoint: "md",
+          breakpoint: 'md',
           breakpointWidth: 996,
           numberOfCols: 8,
           items: [
             {
-              id: "1",
+              id: '1',
               x: 0,
               y: 0,
               width: 1,
               height: 1,
             },
-            { id: "2", x: 1, y: 0, width: 2, height: 1 },
-            { id: "3", x: 0, y: 1, width: 2, height: 1 },
-            { id: "4", x: 3, y: 0, width: 2, height: 2 },
-            { id: "5", x: 5, y: 0, width: 1, height: 2 },
-            { id: "6", x: 6, y: 0, width: 2, height: 1 },
-            { id: "7", x: 7, y: 1, width: 1, height: 1 },
+            { id: '2', x: 1, y: 0, width: 2, height: 1 },
+            { id: '3', x: 0, y: 1, width: 2, height: 1 },
+            { id: '4', x: 3, y: 0, width: 2, height: 2 },
+            { id: '5', x: 5, y: 0, width: 1, height: 2 },
+            { id: '6', x: 6, y: 0, width: 2, height: 1 },
+            { id: '7', x: 7, y: 1, width: 1, height: 1 },
           ],
         },
         {
-          breakpoint: "sm",
+          breakpoint: 'sm',
           breakpointWidth: 768,
           numberOfCols: 4,
           items: [
             {
-              id: "1",
+              id: '1',
               x: 0,
               y: 0,
               width: 1,
               height: 1,
             },
-            { id: "2", x: 1, y: 0, width: 2, height: 1 },
-            { id: "3", x: 0, y: 1, width: 2, height: 1 },
-            { id: "4", x: 3, y: 0, width: 1, height: 2 },
-            { id: "5", x: 2, y: 1, width: 1, height: 1 },
+            { id: '2', x: 1, y: 0, width: 2, height: 1 },
+            { id: '3', x: 0, y: 1, width: 2, height: 1 },
+            { id: '4', x: 3, y: 0, width: 1, height: 2 },
+            { id: '5', x: 2, y: 1, width: 1, height: 1 },
           ],
         },
         {
-          breakpoint: "xs",
+          breakpoint: 'xs',
           breakpointWidth: 480,
           numberOfCols: 2,
           items: [
             {
-              id: "1",
+              id: '1',
               x: 0,
               y: 0,
               width: 1,
               height: 1,
             },
-            { id: "2", x: 1, y: 0, width: 1, height: 1 },
-            { id: "3", x: 0, y: 1, width: 2, height: 1 },
+            { id: '2', x: 1, y: 0, width: 1, height: 1 },
+            { id: '3', x: 0, y: 1, width: 2, height: 1 },
           ],
         },
         {
-          breakpoint: "xxs",
+          breakpoint: 'xxs',
           breakpointWidth: 0,
           numberOfCols: 1,
           items: [
             {
-              id: "1",
+              id: '1',
               x: 0,
               y: 0,
               width: 1,
               height: 1,
             },
-            { id: "2", x: 0, y: 1, width: 1, height: 1 },
+            { id: '2', x: 0, y: 1, width: 1, height: 1 },
           ],
         },
       ] as Layout[],
       dlayouts: [
         {
-          breakpoint: "xl",
+          breakpoint: 'xl',
           numberOfCols: 12,
           items: [
-            { id: "1", x: 6, y: 3, width: 6, height: 3 },
-            { id: "2", x: 9, y: 0, width: 3, height: 3 },
-            { id: "3", x: 0, y: 0, width: 8, height: 3 },
+            { id: '1', x: 6, y: 3, width: 6, height: 3 },
+            { id: '2', x: 9, y: 0, width: 3, height: 3 },
+            { id: '3', x: 0, y: 0, width: 8, height: 3 },
           ],
         },
       ] as Layout[],
-      currentBreakpoint: "",
+      currentBreakpoint: '',
       origLayout: [],
       testHelper: false,
       rowHeightInput: 200,
@@ -280,14 +269,14 @@ export default defineComponent({
       if (this.allowFrom) {
         this.allowFrom = null;
       } else {
-        this.allowFrom = ".dragHandle";
+        this.allowFrom = '.dragHandle';
       }
     },
     toggleIgnoreFrom() {
       if (this.ignoreFrom) {
         this.ignoreFrom = null;
       } else {
-        this.ignoreFrom = ".dragHandle2";
+        this.ignoreFrom = '.dragHandle2';
       }
     },
     addItem() {
@@ -307,7 +296,7 @@ export default defineComponent({
       }
     },
     updateCurrentBreakpoint(val: string) {
-      console.log(val)
+      console.log(val);
       this.currentBreakpoint = val;
     },
   },

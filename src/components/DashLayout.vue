@@ -1,9 +1,6 @@
 <template>
   <div v-if="currentBreakpoint === breakpoint">
-    <div
-      v-if="l"
-      :style="{ position: 'relative', height: height, width: width }"
-    >
+    <div v-if="l" :style="{ position: 'relative', height: height, width: width }">
       <slot></slot>
       <DashItem
         :id="placeholderId"
@@ -30,25 +27,15 @@
   </div>
 </template>
 
-<script>
-import { Layout } from "./Layout.model";
-import DashItem from "./DashItem";
+<script lang="ts">
+import DashItem from './DashItem.vue';
+import { Dashboard, Item, Layout } from '@/models';
 
-import { defineComponent } from "vue";
-//Monitor the Props and update the item with the changed value
-const watchProp = (key, deep) => ({
-  handler(newValue) {
-    //If the prop did not cause the update there is no updating
-    if (this.l[key] === newValue) {
-      return;
-    }
-    this.l[key] = newValue;
-  },
-  deep,
-});
+import { defineComponent } from 'vue';
+import { provide, inject } from 'vue';
 
 export default defineComponent({
-  name: "DashLayout",
+  name: 'DashLayout',
   inheritAttrs: false,
   props: {
     breakpoint: { type: String, required: true },
@@ -60,7 +47,7 @@ export default defineComponent({
     },
     compact: { type: Boolean, default: Layout.defaults.compact },
     debug: { type: Boolean, default: false },
-    margin: { type: Object, default: () => Layout.defaults.margin },
+    margin: { type: Object, default: Layout.defaults.margin },
     rowHeight: {
       type: [Boolean, Number],
       default: Layout.defaults.rowHeight,
@@ -91,32 +78,23 @@ export default defineComponent({
   },
   data() {
     return {
-      l: null,
-      placeholderId: "-1Placeholder",
+      l: null as unknown as Layout,
+      dashboard: null as unknown as Dashboard,
+      placeholderId: '-1Placeholder',
       placeholderY: 0,
       placeholderHeight: 0,
       placeholderMaxWidth: false,
-      unWatch: null,
+      // eslint-disable-next-line @typescript-eslint/ban-types
+      unWatch: null as unknown as Function,
     };
   },
-  provide() {
-    return {
-      $layout: () => this.l,
-    };
-  },
-  inject: { $dashboard: { default: null } },
+  // inject: { $dashboard: { default: null } },
   computed: {
-    dashboard() {
-      if (this.$dashboard) {
-        return this.$dashboard();
-      }
-      return null;
-    },
     currentBreakpoint() {
       if (this.dashboard) {
         return this.dashboard.currentBreakpoint;
       }
-      return "";
+      return '';
     },
     dragging() {
       return this.l.itemBeingDragged;
@@ -128,7 +106,7 @@ export default defineComponent({
       if (this.l?.placeholder) {
         return this.l.placeholder.toItem();
       }
-      return "";
+      return '';
     },
     itemsFromLayout() {
       if (this.l) {
@@ -138,41 +116,58 @@ export default defineComponent({
     },
     height() {
       if (this.l) {
-        return this.l.height + "px";
+        return this.l.height + 'px';
       }
-      return "0px";
+      return '0px';
     },
     width() {
       if (this.l) {
-        return this.l.width + "px";
+        return this.l.width + 'px';
       }
-      return "0px";
+      return '0px';
     },
   },
   methods: {
     createPropWatchers() {
       //Setup prop watches to sync with the Dash Item
       Object.keys(this.$props).forEach((key) => {
-        this.$watch(key, () => watchProp(key, true));
+        this.$watch(
+          key,
+          (newValue: any) => {
+            const field = key as keyof Layout;
+
+            //If the prop did not cause the update there is no updating
+            if (this.l[field] === newValue) {
+              return;
+            }
+
+            this.l.setValueToField(field, newValue);
+          },
+          { deep: true }
+        );
       });
     },
   },
+  created() {
+    this.dashboard = inject('$dashboard') as Dashboard;
+  },
   mounted() {
-    let initialItems = [];
-    if (this.$attrs?.items) {
-      initialItems = this.$attrs.items;
+    let initialItems: Item[] = [];
+    if (this.$attrs?.items as Item[]) {
+      initialItems = this.$attrs.items as Item[];
     }
-    this.l = new Layout({ ...this.$props, initialItems });
+    this.l = new Layout({ ...this.$props, margin: { x: this.margin['x'], y: this.margin['y'] }, initialItems });
+    provide('$layout', this.l);
     //Check if dashboard exists and if not then start a watcher
     if (this.dashboard) {
-      this.dashboard.addLayoutInstance(this.l);
+      this.dashboard.addLayoutInstance(this.l as Layout);
       this.createPropWatchers();
     } else {
       this.unWatch = this.$watch(
-        "dashboard",
-        function (newValue) {
+        'dashboard',
+        (newValue: any) => {
           if (newValue) {
-            this.dashboard.addLayoutInstance(this.l);
+            this.dashboard!.addLayoutInstance(this.l as Layout);
             this.createPropWatchers();
             this.unWatch();
           }
@@ -183,7 +178,7 @@ export default defineComponent({
   },
   beforeUnmount() {
     if (this.dashboard) {
-      this.dashboard.removeLayoutInstance(this.l);
+      this.dashboard.removeLayoutInstance(this.l as Layout);
     }
   },
 });
