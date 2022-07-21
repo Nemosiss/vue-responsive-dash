@@ -1,24 +1,38 @@
 {
   "name": "vue-responsive-dash",
   "version": "1.0.0",
+  "keywords": [
+    "vuejs",
+    "vue",
+    "responsive",
+    "drag",
+    "draggable",
+    "resize",
+    "resizable",
+    "dashboard",
+    "grid",
+    "grid-layout",
+    "components"
+  ],
   "files": [
     "dist",
     "types/*.d.ts"
   ],
   "types": "types/index.d.ts",
-  "main": "dist/vue-responsive-dash.common.js",
-  "unpkg": "dist/vue-responsive-dash.umd.min.js",
+  "main": "dist/lib-responsive-dash.common.js",
+  "unpkg": "dist/lib-responsive-dash.umd.min.js",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "rimraf dist && vue-cli-service build",
+    "build:lib": "rimraf dist && vue-cli-service build --target lib ./src/components/index.ts",
     "lint": "vue-cli-service lint"
   },
+  "license": "MIT",
   "dependencies": {
     "@interactjs/actions": "^1.10.17",
     "@interactjs/auto-start": "^1.10.17",
-    "@interactjs/interactjs": "^1.10.17",
+    "@interactjs/interact": "^1.10.17",
     "core-js": "^3.8.3",
-    "interactjs": "^1.10.17",
     "ste-simple-events": "^3.0.3",
     "vue": "^3.2.13"
   },
@@ -34,10 +48,7 @@
     "@vue/cli-service": "~5.0.0",
     "@vue/eslint-config-typescript": "^9.1.0",
     "eslint": "^7.32.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-vue": "^8.0.3",
-    "prettier": "^2.4.1",
     "sass": "^1.32.7",
     "sass-loader": "^12.0.0",
     "typescript": "~4.5.5"
