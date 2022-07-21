@@ -1,13 +1,13 @@
 {
-  "name": "lib-responsive-dash",
+  "name": "vue-responsive-dash",
   "version": "1.0.0",
   "files": [
     "dist",
     "types/*.d.ts"
   ],
   "types": "types/index.d.ts",
-  "main": "dist/lib-responsive-dash.common.js",
-  "unpkg": "dist/lib-responsive-dash.umd.min.js",
+  "main": "dist/vue-responsive-dash.common.js",
+  "unpkg": "dist/vue-responsive-dash.umd.min.js",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
