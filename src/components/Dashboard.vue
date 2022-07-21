@@ -1,43 +1,30 @@
 <template>
-  <div :id="id" :ref="id" v-if="d" v-rlocal @resize="onResize">
+  <div :id="id" :ref="id" v-if="d">
     <slot></slot>
   </div>
 </template>
 
-<script>
-import { Dashboard } from "./Dashboard.model";
-import { resize } from "vue-element-resize-detector";
+<script lang="ts">
+import { defineComponent, provide } from 'vue';
 
-import { defineComponent } from "vue";
-//Monitor the Props and update the item with the changed value
-const watchProp = (key, deep) => ({
-  handler(newValue) {
-    //If the prop did not cause the update there is no updating
-    if (this.d[key] === newValue) {
-      return;
-    }
-    this.d[key] = newValue;
-  },
-  deep,
-});
+import { Dashboard } from '../models/Dashboard';
+import { throttle } from '@/helpers';
+
+const RESIZE_THROTTLE_MS: number = 1000 / 30; // 30 fps
+
 export default defineComponent({
-  name: "Dashboard",
+  name: 'Dashboard',
   inheritAttrs: false,
   props: {
-    id: { type: [Number, String], required: true },
+    id: { type: String, required: true },
     autoHeight: { type: Boolean, default: Dashboard.defaults.autoHeight },
-  },
-  directives: {
-    rlocal: resize,
   },
   data() {
     return {
-      d: null,
-    };
-  },
-  provide() {
-    return {
-      $dashboard: () => this.d,
+      d: null as unknown as Dashboard,
+      element: null as unknown as Element,
+      resizeCallback: throttle(this.resizeCallbackThrottled, RESIZE_THROTTLE_MS),
+      resizeObserver: null as unknown as ResizeObserver,
     };
   },
   computed: {
@@ -51,24 +38,52 @@ export default defineComponent({
   watch: {
     currentBreakpoint(newValue) {
       if (newValue) {
-        this.$emit("currentBreakpointUpdated", newValue);
+        this.$emit('currentBreakpointUpdated', newValue);
       }
     },
   },
   methods: {
-    onResize(e) {
-      this.d.width = e.detail.width;
+    onResize() {
+      if (this.d) {
+        this.d.width = this.element.clientWidth;
+      }
     },
     createPropWatchers() {
-      //Setup prop watches to sync with the Dash Item
       Object.keys(this.$props).forEach((key) => {
-        this.$watch(key, () => watchProp(key, true));
+        this.$watch(
+          key,
+          (newValue: any) => {
+            const field = key as keyof Dashboard;
+            //If the prop did not cause the update there is no updating
+            if (this.d[field] === newValue) {
+              return;
+            }
+            this.d.setValueToField(field, newValue);
+          },
+          { deep: true }
+        );
       });
     },
   },
   created() {
+    // Используем Resize Observer API
+    // MDN: https://developer.mozilla.org/en-US/docs/Web/API/Resize_Observer_API
+    this.resizeObserver = new ResizeObserver(this.onResize);
     this.d = new Dashboard(this.$props);
     this.createPropWatchers();
+    provide('$dashboard', this.d);
+  },
+  mounted() {
+    this.element = (this.$refs[this.id] as Element) ?? null;
+    if (this.element) {
+      this.resizeObserver.observe(this.element);
+    }
+  },
+  beforeUnmount() {
+    if (this.element) {
+      this.resizeObserver.unobserve(this.element);
+      this.resizeObserver.disconnect();
+    }
   },
 });
 </script>
