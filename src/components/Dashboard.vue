@@ -23,7 +23,10 @@ export default defineComponent({
     return {
       d: null as unknown as Dashboard,
       element: null as unknown as Element,
-      resizeCallback: throttle(this.resizeCallbackThrottled, RESIZE_THROTTLE_MS),
+      resizeCallback: throttle(
+        this.resizeCallbackThrottled,
+        RESIZE_THROTTLE_MS
+      ),
       resizeObserver: null as unknown as ResizeObserver,
     };
   },

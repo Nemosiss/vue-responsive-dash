@@ -1,6 +1,10 @@
 <template>
   <div id="app">
-    <dashboard :id="'dashTest'" :autoHeight="enableStaticColWidth" @currentBreakpointUpdated="updateCurrentBreakpoint">
+    <dashboard
+      :id="'dashTest'"
+      :autoHeight="enableStaticColWidth"
+      @currentBreakpointUpdated="updateCurrentBreakpoint"
+    >
       <Dash-Layout
         v-for="layout in layouts"
         :key="layout.breakpoint"
@@ -46,9 +50,14 @@
     Current Breakpoint:
     {{ currentBreakpoint }} <br />
     <button @click="compact = !compact">toggle compact ({{ compact }})</button>
-    <button @click="resizable = !resizable">toggle resizable ({{ resizable }})</button>
-    <button @click="draggable = !draggable">toggle draggable ({{ draggable }})</button>
-    <button @click="addItem">Add Item</button><button @click="removeItem">Remove Item</button>
+    <button @click="resizable = !resizable">
+      toggle resizable ({{ resizable }})
+    </button>
+    <button @click="draggable = !draggable">
+      toggle draggable ({{ draggable }})
+    </button>
+    <button @click="addItem">Add Item</button
+    ><button @click="removeItem">Remove Item</button>
     <button @click="enableStaticRowHeight = !enableStaticRowHeight">
       Toggle Static Row Height ({{ enableStaticRowHeight }})
     </button>
@@ -61,8 +70,12 @@
     <button @click="enableRowHeightLimits = !enableRowHeightLimits">
       Toggle Row Height Limits ({{ enableRowHeightLimits }})
     </button>
-    <button @click="toggleAllowFrom">Toggle Allow From ({{ allowFrom }})</button>
-    <button @click="toggleIgnoreFrom">Toggle Ignore From ({{ ignoreFrom }})</button>
+    <button @click="toggleAllowFrom">
+      Toggle Allow From ({{ allowFrom }})
+    </button>
+    <button @click="toggleIgnoreFrom">
+      Toggle Ignore From ({{ ignoreFrom }})
+    </button>
     <input type="number" min="0" max="5000" v-model.number="moveHold" />
   </div>
 </template>
@@ -296,7 +309,6 @@ export default defineComponent({
       }
     },
     updateCurrentBreakpoint(val: string) {
-      console.log(val);
       this.currentBreakpoint = val;
     },
   },
